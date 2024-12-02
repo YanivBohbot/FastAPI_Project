@@ -1,0 +1,23 @@
+#environemnt
+venv/
+env/
+
+#files python
+__pycache__/
+*.pyc
+*.pyo
+
+#depence
+*.egg-info/
+*.eggs/
+*.whl
+*.log
+
+#config
+.vscode/
+.idea/
+
+#files
+*.swp
+
+
