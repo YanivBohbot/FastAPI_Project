@@ -1,25 +1,28 @@
-from fastapi import FastAPI , Response , status , HTTPException
+from fastapi import Depends, FastAPI , Response , status , HTTPException
 from fastapi.params import Body
-from pydantic import BaseModel
 from typing import Optional
-from pydantic import BaseModel
+from . import models , schemas
 from random import randrange
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import time 
+from . import models
+from .database import engine
 
 
+models.Base.metatdata.create_All(bingd=engine)
 
 app = FastAPI()
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
-class Post(BaseModel):
-    
-    title: str
-    content: str
-    published:bool = True
-    rating: Optional[int] = None
+
     
 
 while True:
@@ -39,33 +42,41 @@ my_posts = [ {"title": "title of post" , "content":"content of post 1 " , "id": 
              {"title": "title of post 2 " , "content":"content of post  2 " , "id": 2 , "published": True} ,
              ]
     
-def find_post(id: int):
-    return {"data": 2}
+
     
 @app.get("/")
 async def root():
     return {"message": "Hello ffrefrefere"}
 
 
+
+@app.get("/sqlalchemy")
+def test_posts(db: Session = Depends(get_db)):
+    
+    db.query(models.Post).all()
+    return {"data": posts}
+
+
+
 @app.get("/posts")
-def get_posts():
-    cursor.execute("""SELECT * from posts """)
-    posts= cursor.fetchall
+def get_posts(db: Session = Depends(get_db)):
+    # cursor.execute("""SELECT * from posts """)
+    # posts= cursor.fetchall
+    posts = db.query(models.Post).all()
     print(posts)
-    return {"data": my_posts}
+    return {"data": posts}
 
 
 @app.post("/createPosts", status_code=status.HTTP_201_CREATED)
 def create_posts(post: Post):
     
-    cursor.execute("""INSERT INTO posts (title, content , published) VALUES (%s,%s,%s) RETURNING 
-                   * """ ,(post.title , post.content, post.published))
+    # cursor.execute("""INSERT INTO posts (title, content , published) VALUES (%s,%s,%s) RETURNING 
+    #                * """ ,(post.title , post.content, post.published))
+    # new_post= cursor.fetchone()
+    # conn.commit()
     
-    new_post= cursor.fetchone()
+    models.Post()
     
-    conn.commit()
-    
-   
     return {"data": "new post"}
 
 
