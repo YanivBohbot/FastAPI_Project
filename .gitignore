@@ -1,6 +1,6 @@
 #environemnt
 venv/
-env/
+.env/
 
 #files python
 __pycache__/
